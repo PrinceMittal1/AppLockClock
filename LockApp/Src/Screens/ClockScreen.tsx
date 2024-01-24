@@ -3,15 +3,33 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React,{useState, useEffect, useRef} from "react";
 import {Text, Image, TouchableOpacity, Pressable, View} from "react-native"
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
+import CityOnHome from "../Component/RenderingCityOnHome";
 
 const ClockScreen = ({navigation}) =>{
     const [time, setTime] = useState(new Date());
+    const [selectcity, setselectedcity] = useState({})
+    
+
+    const gettingListOfSelectedCities = async () =>{
+        try{
+            let list = await AsyncStorage.getItem('listofselectedcity');
+            if(list){
+                list = JSON.parse(list);
+
+                console.log("city from async ", list)
+                setselectedcity(list);
+            }
+        }catch(e){
+            console.log("some issue", e);
+        }
+    }
     
     useEffect(()=>{
         setInterval(()=>{
             let time = new Date();
             setTime(time);
         },1000)
+        gettingListOfSelectedCities();
     },[])
 
 
@@ -31,22 +49,6 @@ const ClockScreen = ({navigation}) =>{
             <Text style={{color:"black", fontSize:RFValue(12)}}>{`Current:${time.getDate()}/${time.getMonth()}/${time.getFullYear()} ${time.getHours() > 11 ? "AM" : "PM"}`}</Text>
           </View>
         </View>
-
-        {/* <View>
-            {selectcity
-                ?
-                <View style={{marginLeft:RFPercentage(4),marginRight:RFPercentage(4), flexDirection:"row",alignItems:"center", justifyContent:'space-between'}}>
-                   <View style={{borderWidth:1}}>
-                     <View><Text style={{color:"black", fontSize:RFValue(17)}}>{selectcity?.city}</Text></View>
-                     <View><Text style={{color:"black", opacity:0.7, fontSize:RFValue(13)}}>{`${selectcity?.country} GMT${selectcity?.gmt}`}</Text></View>
-                   </View>
-
-                  
-            
-                </View>
-             : null
-            }
-        </View> */}
 
         
 

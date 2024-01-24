@@ -17,6 +17,7 @@ import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import ClockScreen from './ClockScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import SelectCities from './SelectCity';
+import GalleryScreen from './GalleryScreen';
 
 const Stack = createStackNavigator();
 
@@ -26,7 +27,7 @@ const  App = () => {
   return (
     <View style={{ flex:1, backgroundColor:'white' }}>
       <NavigationContainer>
-         <Stack.Navigator initialRouteName='clockScreen'>
+         <Stack.Navigator initialRouteName='galleryScreen'>
            <Stack.Screen 
               name="clockScreen"
               component={ClockScreen}
@@ -36,7 +37,12 @@ const  App = () => {
               name="selectcities"
               component={SelectCities}
               options={{headerShown: false}}
-           />
+            />
+            <Stack.Screen 
+              name="galleryScreen"
+              component={GalleryScreen}
+              options={{headerShown: false}}
+            />
          </Stack.Navigator>
       </NavigationContainer>
     </View>

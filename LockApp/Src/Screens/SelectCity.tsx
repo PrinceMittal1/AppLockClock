@@ -67,29 +67,12 @@ const SelectCities = ({navigation}) => {
 
     const cityClicked = async (element) =>{
         if(JSON.stringify(element?.city) === cityCodePassword){
-            console.log("in try and cathc matched")
+            
             return;
         }
         else{
             try{
-                AsyncStorage.setItem('listofselectedcity', JSON.stringify(element));
                 navigation.navigate('clockScreen');
-                // let list = await AsyncStorage.getItem('listofselectedcity');
-                // if(list){
-                //     list = JSON.parse(list);
-                //     console.log("in try and cathc if", list)
-                //     const newlist = [...list];
-                //     newlist.push(element);
-                //     AsyncStorage.setItem('listofselectedcity', JSON.stringify(newlist));
-                //     navigation.navigate('clockScreen');
-                // }
-                // else{
-                //     console.log("in try and cathc else")
-                //     const newlist = [];
-                //     newlist.push(element);
-                //     AsyncStorage.setItem('listofselectedcity', JSON.stringify(newlist));
-                //     navigation.navigate('clockScreen');
-                // }
             }
             catch(e){
                 console.log("in try and cathc error", e)
