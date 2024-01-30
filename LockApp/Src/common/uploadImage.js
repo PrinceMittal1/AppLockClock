@@ -5,31 +5,32 @@ import {
   } from 'react-native';
   import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
   import Toast from "react-native-simple-toast";
+  import RNFS from 'react-native-fs';
+  // const requestExternalWritePermission = async () => {
+  //   console.log("repoosne is in image permission in isStoragePermitted",)
+  //   if (Platform.OS === 'android') {
+  //     try {
+  //       const granted = await PermissionsAndroid.request(
+  //         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+  //         {
+  //           title: 'External Storage Write Permission',
+  //           message: 'App needs write permission',
+  //           buttonNeutral: "Ask Me Later",
+  //           buttonNegative: "Cancel",
+  //           buttonPositive: "OK"
+  //         },
+  //       );
+  //       // If WRITE_EXTERNAL_STORAGE Permission is granted
+  //       return granted === PermissionsAndroid.RESULTS.GRANTED;
+  //     } catch (err) {
+  //       console.warn(err);
+  //       alert('Write permission err', err);
+  //     }
+  //     return false;
+  //   } else return true;
+  // };
+
   
-  // Request External StoragePermission
-  const requestExternalWritePermission = async () => {
-    console.log("repoosne is in image permission in isStoragePermitted",)
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'External Storage Write Permission',
-            message: 'App needs write permission',
-            buttonNeutral: "Ask Me Later",
-            buttonNegative: "Cancel",
-            buttonPositive: "OK"
-          },
-        );
-        // If WRITE_EXTERNAL_STORAGE Permission is granted
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        alert('Write permission err', err);
-      }
-      return false;
-    } else return true;
-  };
   
   const settingInAsync = async (response, refreshing) =>{
     try{
@@ -54,16 +55,18 @@ import {
 
             else{
                 if(gallers?.images[todaydate]){
-                    console.log("checking store in if",[todaydate], gallers?.images[todaydate])
                     gallers.images[todaydate] = [response, ...gallers.images[todaydate]];
+                    await AsyncStorage.setItem('galle', JSON.stringify(gallers));
                 }
                 else{
-                    gallers.images[todaydate] = [response]
                     
-                    console.log("checking store in else", gallers)
+                    const newobj = {
+                      [todaydate] : [response],
+                      ...gallers.images
+                    }
+                    gallers.images = newobj
+                    await AsyncStorage.setItem('galle', JSON.stringify(gallers));
                 }
-                await AsyncStorage.setItem('galle', JSON.stringify(gallers));
-
                 refreshing();
             }
             
@@ -86,6 +89,11 @@ import {
 
             refreshing();
         }
+
+        Toast.showWithGravity(`Your file added in your private space now you can remove the file from your device file-Manager`,
+            Toast.SHORT,
+            Toast.BOTTOM
+        );
     }
     catch(e){ console.log(e)};
 
@@ -102,36 +110,20 @@ import {
     };   
 
     const response = await launchImageLibrary(options, (response) => {
-        // console.log('launch img', response)
         if (response.didCancel) {
-          Toast.showWithGravity(`User cancelled camera picker`,
-            Toast.SHORT,
-            Toast.BOTTOM
-          );
           return false;
         } else if (response.errorCode == 'camera_unavailable') {
-          Toast.showWithGravity(`Camera not available on device`,
-            Toast.SHORT,
-            Toast.BOTTOM
-          );
           return false;
         } else if (response.errorCode == 'permission') {
-          Toast.showWithGravity(`Permission not satisfied`,
-            Toast.SHORT,
-            Toast.BOTTOM
-          );
           return false;
         } else if (response.errorCode == 'others') {
-          Toast.showWithGravity(response.errorMessage,
-            Toast.SHORT,
-            Toast.BOTTOM
-          );
           return false;
         }
         return response;
       });
-    if (response) {
-        console.log("reponse is reponse", response?.assets?.[0]?.duration)
+
+    if (response?.assets?.[0]?.uri) {
+      // console.log("reponse checking ", result)
         settingInAsync(response, refreshing);
         return response;
     }
