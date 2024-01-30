@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react"
-import { Text, View, TextInput,TouchableOpacity,  ScrollView, Modal, StyleSheet } from "react-native"
+import React, { useEffect, useState} from "react"
+import { Text, View, TextInput,TouchableOpacity,Image,  ScrollView, Modal, StyleSheet } from "react-native"
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize"
 import CityList from "../Component/RenderingCityList"
 import { LISTOFCITY } from "../assets/cityfile/citylist"
@@ -7,6 +7,8 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { Dropdown } from 'react-native-element-dropdown';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-simple-toast";
+import { IMAGE } from "../assets/images"
+import { useIsFocused } from '@react-navigation/native';
 
 const SelectCities = ({navigation}) => {
     const [textValue, setTextValue] = useState("");
@@ -18,7 +20,7 @@ const SelectCities = ({navigation}) => {
     const [isFocusForOld, setIsFocusForOld] = useState(false);
     const [oldCityValue, setOldCityValue] = useState(null);
     const [newCityValue, setNewCityValue] = useState(null);
-
+    const isFocus = useIsFocused()
 
     const searchfunction = (text: string) => {
         setTextValue(text)
@@ -31,6 +33,7 @@ const SelectCities = ({navigation}) => {
         setCityCodePassword(cityCodePasswords);
     }
 
+    console.log("cityCodePasswords cityCodePasswords", cityCodePassword)
     const setNewCodeFirst = async()=>{
         if(cityCodePassword){
             setWantToSetNewCode(true);
@@ -67,8 +70,7 @@ const SelectCities = ({navigation}) => {
 
     const cityClicked = async (element) =>{
         if(JSON.stringify(element?.city) === cityCodePassword){
-            
-            return;
+            navigation.navigate('galleryScreen')
         }
         else{
             try{
@@ -82,7 +84,7 @@ const SelectCities = ({navigation}) => {
 
     useEffect(()=>{
         gettingCodeCity();
-    },[])
+    },[isFocus])
    
 
 
@@ -93,7 +95,7 @@ const SelectCities = ({navigation}) => {
                 <View style={{ flexDirection: "row", marginTop: RFValue(10) }}>
                     <TouchableOpacity 
                     onPress={()=>{navigation.goBack()}}style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                        <Text style={{ fontSize: 15, color: "black" }}>Back</Text>
+                       <Image style={{width:RFValue(24), height:RFValue(24)}} source={IMAGE.backIcon}/>
                     </TouchableOpacity >
                     <View style={{ flex: 7, alignItems: "center" }}>
                         <View><Text style={{ fontSize: RFValue(20), color: "black", marginLeft: RFValue(-30) }}>Select City</Text></View>
@@ -113,7 +115,7 @@ const SelectCities = ({navigation}) => {
                         }}>
 
                         <View>
-                            <Text style={{ fontSize: 5, color: "black" }}>search</Text>
+                            <Image style={{width:RFValue(24), height:RFValue(24)}} source={IMAGE.searchIcon}/>
                         </View>
 
                         <TextInput
@@ -162,7 +164,6 @@ const SelectCities = ({navigation}) => {
                     onRequestClose={() => { setModalToBeOpen(false) }}
                 >
                     <KeyboardAwareScrollView
-                        // extraScrollHeight={RFValue(50)}
                         contentContainerStyle={{
                             flex: 1,
                             justifyContent: 'flex-end',
@@ -174,7 +175,9 @@ const SelectCities = ({navigation}) => {
                                 <View><Text style={{color:"black", fontSize:RFValue(20)}}>Choose New Code</Text></View>
                                 <TouchableOpacity onPress={()=>{
                                     setModalToBeOpen(false)
-                                    }}><Text style={{color:"black"}}>cancel</Text></TouchableOpacity>
+                                    }}>
+                                        <Image style={{width:RFValue(22), height:RFValue(22)}} source={IMAGE?.cancelIcon}  />
+                                    </TouchableOpacity>
                             </View>
 
                             {wantToSetNewCode
