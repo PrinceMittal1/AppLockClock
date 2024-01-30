@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Image, FlatList, PermissionsAndroid, Platform, StyleSheet, Dimensions, Modal } from "react-native"
+import { View, Text, TouchableOpacity, Image, FlatList, PermissionsAndroid, Platform, StyleSheet, Dimensions, Modal, AppState } from "react-native"
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import uploadImageFromGallery from "../common/uploadImage";
 import RNFS from 'react-native-fs';
@@ -50,35 +50,13 @@ const GalleryScreen = ({ navigation }) => {
         refreshing();
     }, [isFocus])
 
-    const saveToCameraRoll = async (ele) => {
-
-        try {
-
-            const imageUrl = ele?.ele?.item?.assets?.[0]?.uri; // Replace with your image path
-            const targetFolder = ele?.ele?.item?.assets?.[0]?.originalPath; // Replace with your desired folder name
-
-            // Create the target folder if it doesn't exist
-            const targetPath = `${RNFS.CachesDirectoryPath}/${targetFolder}`;
-            await RNFS.mkdir(targetPath);
-
-            // Copy the image to the target folder
-            const destinationPath = `${targetPath}/image.jpg`;
-            await RNFS.copyFile(imageUrl, destinationPath);
-
-            const result = await CameraRoll.save(`file://${destinationPath}`);
-
-            console.log("resultstss", result)
-
-            if (result) {
-                console.log('Image saved to camera roll:', result);
-            }
-            else {
-                console.error('Image saved to camera roll: Failed to save image to camera roll');
-            }
-        } catch (error) {
-            console.error('Image saved to camera roll: Error saving image:', error);
-        }
-    };
+    useEffect(() => {
+        const handleAppStateChange = (nextAppState) => {
+            console.log("nextAppState nextAppState", nextAppState)
+          if(nextAppState == "background") navigation.navigate('clockScreen')
+        };
+        AppState.addEventListener('change', handleAppStateChange);
+      }, []);
 
     const Renderimage = (ele: any) => {
         console.log('Image saved to camera roll: Error saving image:', ele?.ele?.item?.assets?.[0]?.uri, ele?.time);
@@ -91,8 +69,6 @@ const GalleryScreen = ({ navigation }) => {
             </TouchableOpacity>
         )
     }
-
-    console.log("indxex is jhgujvhjv", imageOfModal?.ele?.item?.assets?.[0])
 
     const renderItem2 = (index: number) => {
         return (
