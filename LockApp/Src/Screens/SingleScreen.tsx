@@ -243,10 +243,10 @@ const Singlescreen = ({ route, navigation }) => {
                             source={{ uri: route?.params?.ele?.uri }}
                             paused={paused}
                             ref={ref}
-                            // onProgress={(x) => {
-                            //     // console.log("proprps in single screen", x)
-                            //     setProgress(x)
-                            // }}
+                            onProgress={(x) => {
+                                // console.log("proprps in single screen", x)
+                                setProgress(x)
+                            }}
                             style={{ width: widthVideo, height: heightVideo }}
                             resizeMode='contain'
                         />

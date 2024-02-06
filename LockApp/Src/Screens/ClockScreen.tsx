@@ -67,8 +67,6 @@ const ClockScreen = ({ navigation }) => {
     const startAppTour = async () => {
 
         const status = await AsyncStorage.getItem('tourOfApplicationOnclock');
-
-        console.log("status of tourOfApplicationOnclock", status)
         if (status == 'true') {
             setTimeout(() => {
                 ClockSpotlightRef.current.start();
@@ -83,6 +81,15 @@ const ClockScreen = ({ navigation }) => {
         }
         catch (e) {
         }
+    }
+
+    const howToUse = async () =>{
+        await AsyncStorage.setItem('tourOfApplicationOnclock', 'true');
+        await AsyncStorage.setItem('tourOfApplicationOncity', 'true');
+
+        setTimeout(() => {
+            startAppTour();
+        }, 500);
     }
 
     const onStopTour = useCallback(({ index, isLast }: StopParams) => {
@@ -116,8 +123,14 @@ const ClockScreen = ({ navigation }) => {
             ref={ClockSpotlightRef}>
             <View style={{ flex: 1 }}>
 
-                <View style={{ alignItems: "center", justifyContent: "center", marginTop: RFPercentage(10) }}>
-                    <View style={{ flexDirection: "row", borderColor: "green", paddingHorizontal: RFValue(10), paddingTop: RFValue(10), alignItems: "center" }}>
+                <TouchableOpacity 
+                onPress={howToUse}
+                style={{borderRadius:RFValue(25), padding:RFValue(10), backgroundColor:'black', alignSelf:"flex-end", marginTop:RFValue(10), marginRight:RFValue(10)}}>
+                    <Text style={{fontSize:RFValue(20), color:'white'}}>How to use</Text>
+                </TouchableOpacity>
+
+                <View style={{ alignItems: "center", justifyContent: "center", marginTop: RFPercentage(5)}}>
+                    <View style={{ flexDirection: "row", borderColor: "green", paddingHorizontal: RFValue(10),paddingTop: RFValue(10), alignItems: "center"}}>
                         <View><Text style={{ color: "black", fontSize: RFValue(40) }}>{time.getHours() % 12}</Text></View>
                         <View><Text style={{ color: "black", fontSize: RFValue(30) }}>{`:`}</Text></View>
                         <View><Text style={{ color: "black", fontSize: RFValue(40) }}>{time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes()}</Text></View>
@@ -125,8 +138,8 @@ const ClockScreen = ({ navigation }) => {
                         <View><Text style={{ color: "black", fontSize: RFValue(40) }}>{time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}</Text></View>
                     </View>
 
-                    <View style={{ marginTop: RFValue(-5) }}>
-                        <Text style={{ color: "black", fontSize: RFValue(12) }}>{`Current:${time.getDate()}/${time.getMonth() + 1}/${time.getFullYear()}`}</Text>
+                    <View style={{ marginTop: RFValue(-5)}}>
+                        <Text style={{ color: "black", fontSize: RFValue(13) }}>{`${time.getDate()}/${time.getMonth() + 1}/${time.getFullYear()} ${time.getDay() == 1 ? "Monday" : time.getDay() == 2 ? "Tuesday" : time.getDay() == 3 ? "Wednesday": time.getDay() == 4 ? "Thursday" : time.getDay() == 5 ? "Friday" : time.getDay() == 6 ? "Saturday" : "Sunday"}`}</Text>
                     </View>
                 </View>
 
@@ -136,7 +149,7 @@ const ClockScreen = ({ navigation }) => {
                         onPress={() => {
                             navigation.navigate('selectcities')
                         }}
-                        style={{ borderWidth: 1, borderColor: "gray", width: RFPercentage(10), height: RFPercentage(10), borderRadius: 100, alignSelf: "center", position: "absolute", bottom: RFPercentage(10), backgroundColor: "gray", flexDirection: "row" }}>
+                        style={{ borderWidth: 1, borderColor: "black", width: RFPercentage(10), height: RFPercentage(10), borderRadius: 100, alignSelf: "center", position: "absolute", bottom: RFPercentage(10), backgroundColor: "black", flexDirection: "row" }}>
                         <View style={{ backgroundColor: "white", height: RFValue(40), width: RFValue(5), left: RFPercentage(4.6), borderRadius: RFValue(10), top: RFPercentage(2) }}></View>
                         <View style={{ backgroundColor: "white", height: RFValue(40), width: RFValue(5), borderRadius: RFValue(10), top: RFPercentage(2.1), left: RFPercentage(3.8), transform: [{ rotate: `90deg` }] }}></View>
                     </TouchableOpacity>

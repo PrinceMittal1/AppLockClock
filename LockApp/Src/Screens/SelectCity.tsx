@@ -42,6 +42,7 @@ const SelectCities = ({ navigation }) => {
         setCityCodePassword(cityCodePasswords);
     }
 
+    console.log("cityCodePassword is ",cityCodePassword)
     const setNewCodeFirst = async () => {
         if (cityCodePassword) {
             setWantToSetNewCode(true);

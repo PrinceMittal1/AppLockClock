@@ -83,7 +83,7 @@ const GalleryScreen = ({ navigation }) => {
 
                                     <TouchableOpacity
                                         onPress={() => {
-                                            uploadImageFromGallery(refreshing);
+                                          uploadImageFromGallery(refreshing);
                                         }}
                                         style={{ borderWidth: 1, borderColor: "black", width: RFPercentage(10), height: RFPercentage(10), borderRadius: 100, alignSelf: "center", position: "absolute", bottom: RFPercentage(5), backgroundColor: "black", opacity: 0.7, flexDirection: "row", right: RFPercentage(5) }}>
                                         <View style={{ backgroundColor: "white", height: RFValue(40), width: RFValue(5), left: RFPercentage(4.6), borderRadius: RFValue(10), top: RFPercentage(2) }}></View>
