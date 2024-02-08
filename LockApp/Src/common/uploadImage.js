@@ -1,35 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-    Platform,
     PermissionsAndroid,
   } from 'react-native';
-  import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+  import { launchImageLibrary} from 'react-native-image-picker';
   import Toast from "react-native-simple-toast";
   import RNFS from 'react-native-fs';
-  // const requestExternalWritePermission = async () => {
-  //   console.log("repoosne is in image permission in isStoragePermitted",)
-  //   if (Platform.OS === 'android') {
-  //     try {
-  //       const granted = await PermissionsAndroid.request(
-  //         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-  //         {
-  //           title: 'External Storage Write Permission',
-  //           message: 'App needs write permission',
-  //           buttonNeutral: "Ask Me Later",
-  //           buttonNegative: "Cancel",
-  //           buttonPositive: "OK"
-  //         },
-  //       );
-  //       // If WRITE_EXTERNAL_STORAGE Permission is granted
-  //       return granted === PermissionsAndroid.RESULTS.GRANTED;
-  //     } catch (err) {
-  //       console.warn(err);
-  //       alert('Write permission err', err);
-  //     }
-  //     return false;
-  //   } else return true;
-  // };
-
   
   
   const settingInAsync = async (response, refreshing) =>{
@@ -90,7 +65,7 @@ import {
             refreshing();
         }
 
-        Toast.showWithGravity(`Your file added in your private space now you can remove the file from your device file-Manager`,
+        Toast.showWithGravity(`file added in your private-space now you can remove file from your device file-Manager`,
             Toast.SHORT,
             Toast.BOTTOM
         );
@@ -100,9 +75,48 @@ import {
     // await AsyncStorage.setItem('gallery', JSON.stringify(response))
   }
 
+  async function requestStoragePermission() {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message: 'App needs access to your storage to delete photos.',
+        }
+      );
+  
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Photo deleted successfully. Storage permission granted.');
+      } else {
+        console.log('Photo deleted successfully. Storage permission denied.');
+      }
+    } catch (error) {
+      console.error('Photo deleted successfully. Error requesting storage permission:', error);
+    }
+  }
+
+  // async function deletePhoto(originalPath) {
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+  //       {
+  //         title: 'Storage Permission',
+  //         message: 'App needs access to your storage to delete photos.',
+  //       }
+  //     );
+  
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       await RNFS.unlink(originalPath);
+  //       console.log('Photo deleted successfully.');
+  //     } else {
+  //       console.log('Photo deleted successfully. Storage permission denied.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Photo deleted successfully. Error deleting photo:', error);
+  //   }
+  // }
 
    const uploadImageFromGallery = async (refreshing) => {
-    console.log("repoosne is in image")
     var options = {
       mediaType: 'videos',
       quality:1,
@@ -123,7 +137,8 @@ import {
       });
 
     if (response?.assets?.[0]?.uri) {
-      // console.log("reponse checking ", result)
+      // console.log("reponse checking ", response?.assets?.[0]?.uri)
+      // deletePhoto(response?.assets?.[0]?.originalPath)
         settingInAsync(response, refreshing);
         return response;
     }

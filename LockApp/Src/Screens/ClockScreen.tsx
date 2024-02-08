@@ -1,57 +1,162 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React,{useState, useEffect, useRef} from "react";
-import {Text, Image, TouchableOpacity, Pressable, View} from "react-native"
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { Text, Image, TouchableOpacity, Pressable, View } from "react-native"
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import CityOnHome from "../Component/RenderingCityOnHome";
 import {
     CopilotProvider,
     CopilotStep,
     walkthroughable,
 } from "react-native-copilot";
+import {
+    Align,
+    AttachStep,
+    Position,
+    SpotlightTourProvider,
+    TourStep,
+} from '@stackbuilders/react-native-spotlight-tour';
+import { DocsTooltip } from "../Component/SpotLightModal";
+import { BoldText, ButtonsGroupView, DescriptionText, SpotDescriptionView } from "../Component/SpotLightStyle";
+import { FONTS } from "../assets/fonts";
 
-const ClockScreen = ({navigation}) =>{
+const ClockScreen = ({ navigation }) => {
     const [time, setTime] = useState(new Date());
-    
-    
-    useEffect(()=>{
-        setInterval(()=>{
+
+    const ClockSpotlightRef = useRef();
+
+    const DetailsTourSteps = useMemo(
+        (): TourStep[] => [
+            {
+                alignTo: Align.SCREEN,
+                position: Position.TOP,
+                render: ({ next }) => (
+                    <SpotDescriptionView>
+                        <DescriptionText>
+                            <BoldText>{'Click on plus icon to see all Cities-Code list\n'}</BoldText>
+                            {'in Cities-Code list you can choose one city to access your private space\n'}
+                            {/* {"If you want to go to the next step, please press "}<BoldText>{"Next.\n"}</BoldText> */}
+                        </DescriptionText>
+                        <ButtonsGroupView>
+                            {/* <Button title="Next" onPress={next} color='transparent' /> */}
+                            <TouchableOpacity
+                                onPress={onStopTour}
+                                style={{
+                                    borderWidth: RFValue(1),
+                                    borderColor: '#DDD',
+                                    borderRadius: RFValue(4),
+                                    paddingVertical: RFValue(4),
+                                    paddingHorizontal: RFValue(10),
+                                }}>
+                                <Text
+                                    style={{
+                                        fontFamily: FONTS.HELVETICA_BOLD,
+                                        fontSize: RFValue(12),
+                                        color: '#DDD',
+                                    }}>
+                                    Next Step
+                                </Text>
+                            </TouchableOpacity>
+                        </ButtonsGroupView>
+                    </SpotDescriptionView>
+                ),
+            },
+        ],
+        [],
+    );
+
+    const startAppTour = async () => {
+
+        const status = await AsyncStorage.getItem('tourOfApplicationOnclock');
+        if (status == 'true') {
+            setTimeout(() => {
+                ClockSpotlightRef.current.start();
+                settingFalseinAsync();
+            }, 500);
+        }
+    };
+
+    const settingFalseinAsync = async () => {
+        try {
+            await AsyncStorage.setItem('tourOfApplicationOnclock', 'false');
+        }
+        catch (e) {
+        }
+    }
+
+    const howToUse = async () =>{
+        await AsyncStorage.setItem('tourOfApplicationOnclock', 'true');
+        await AsyncStorage.setItem('tourOfApplicationOncity', 'true');
+
+        setTimeout(() => {
+            startAppTour();
+        }, 500);
+    }
+
+    const onStopTour = useCallback(({ index, isLast }: StopParams) => {
+        ClockSpotlightRef.current.stop();
+        settingFalseinAsync();
+        navigation.navigate('selectcities')
+    }, []);
+
+    useEffect(() => {
+        setInterval(() => {
             let time = new Date();
             setTime(time);
-        },1000)
+        }, 1000)
+    }, [])
+
+    useEffect(()=>{
+        setTimeout(()=>{
+            startAppTour()
+        },2000)
     },[])
 
-
     return (
-    <View style={{flex:1}}>
+        <SpotlightTourProvider
+            steps={DetailsTourSteps}
+            overlayColor={'#000000'}
+            overlayOpacity={0.85}
+            nativeDriver={true}
+            onBackdropPress="continue"
+            motion="bounce"
+            onStop={onStopTour}
+            ref={ClockSpotlightRef}>
+            <View style={{ flex: 1 }}>
 
-        <View style={{alignItems:"center", justifyContent:"center", marginTop:RFPercentage(10)}}>
-          <View style={{flexDirection:"row", borderColor:"green", paddingHorizontal:RFValue(10), paddingTop:RFValue(10), alignItems:"center"}}>
-           <View><Text style={{color:"black", fontSize:RFValue(40)}}>{time.getHours() % 12}</Text></View>
-           <View><Text style={{color:"black", fontSize:RFValue(30)}}>{`:`}</Text></View>
-           <View><Text style={{color:"black", fontSize:RFValue(40)}}>{time.getMinutes() < 10 ? `0${time.getMinutes()}` :  time.getMinutes()}</Text></View>
-           <View><Text style={{color:"black", fontSize:RFValue(30)}}>{`:`}</Text></View>
-           <View><Text style={{color:"black", fontSize:RFValue(40)}}>{time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}</Text></View>
-          </View>
-          
-          <View style={{marginTop:RFValue(-5)}}>
-            <Text style={{color:"black", fontSize:RFValue(12)}}>{`Current:${time.getDate()}/${time.getMonth() + 1}/${time.getFullYear()} ${time.getHours() > 11 ? "PM" : "AM"}`}</Text>
-          </View>
-        </View>
+                <TouchableOpacity 
+                onPress={howToUse}
+                style={{borderRadius:RFValue(25), padding:RFValue(10), backgroundColor:'black', alignSelf:"flex-end", marginTop:RFValue(10), marginRight:RFValue(10)}}>
+                    <Text style={{fontSize:RFValue(20), color:'white'}}>How to use</Text>
+                </TouchableOpacity>
 
-        
-        <CopilotStep text="This is a hello world example!" order={1} name="hello">
-        <TouchableOpacity 
-        onPress={()=>{
-            navigation.navigate('selectcities')
-        }}
-        style={{borderWidth:1, borderColor:"gray", width:RFPercentage(10), height:RFPercentage(10), borderRadius:100, alignSelf:"center", position:"absolute", bottom:RFPercentage(10),backgroundColor:"gray",  flexDirection:"row"}}>
-               <View style={{backgroundColor:"white", height:RFValue(40), width:RFValue(5), left:RFPercentage(4.6), borderRadius:RFValue(10), top:RFPercentage(2)}}></View>
-               <View style={{backgroundColor:"white", height:RFValue(40), width:RFValue(5), borderRadius:RFValue(10),top:RFPercentage(2.1),left:RFPercentage(3.8), transform: [{ rotate: `90deg` }]}}></View>
-        </TouchableOpacity>
-        </CopilotStep>
-    </View>
+                <View style={{ alignItems: "center", justifyContent: "center", marginTop: RFPercentage(5)}}>
+                    <View style={{ flexDirection: "row", borderColor: "green", paddingHorizontal: RFValue(10),paddingTop: RFValue(10), alignItems: "center"}}>
+                        <View><Text style={{ color: "black", fontSize: RFValue(40) }}>{time.getHours() % 12}</Text></View>
+                        <View><Text style={{ color: "black", fontSize: RFValue(30) }}>{`:`}</Text></View>
+                        <View><Text style={{ color: "black", fontSize: RFValue(40) }}>{time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes()}</Text></View>
+                        <View><Text style={{ color: "black", fontSize: RFValue(30) }}>{`:`}</Text></View>
+                        <View><Text style={{ color: "black", fontSize: RFValue(40) }}>{time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}</Text></View>
+                    </View>
+
+                    <View style={{ marginTop: RFValue(-5)}}>
+                        <Text style={{ color: "black", fontSize: RFValue(13) }}>{`${time.getDate()}/${time.getMonth() + 1}/${time.getFullYear()} ${time.getDay() == 1 ? "Monday" : time.getDay() == 2 ? "Tuesday" : time.getDay() == 3 ? "Wednesday": time.getDay() == 4 ? "Thursday" : time.getDay() == 5 ? "Friday" : time.getDay() == 6 ? "Saturday" : "Sunday"}`}</Text>
+                    </View>
+                </View>
+
+
+                <AttachStep index={0}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            navigation.navigate('selectcities')
+                        }}
+                        style={{ borderWidth: 1, borderColor: "black", width: RFPercentage(10), height: RFPercentage(10), borderRadius: 100, alignSelf: "center", position: "absolute", bottom: RFPercentage(10), backgroundColor: "black", flexDirection: "row" }}>
+                        <View style={{ backgroundColor: "white", height: RFValue(40), width: RFValue(5), left: RFPercentage(4.6), borderRadius: RFValue(10), top: RFPercentage(2) }}></View>
+                        <View style={{ backgroundColor: "white", height: RFValue(40), width: RFValue(5), borderRadius: RFValue(10), top: RFPercentage(2.1), left: RFPercentage(3.8), transform: [{ rotate: `90deg` }] }}></View>
+                    </TouchableOpacity>
+                </AttachStep>
+            </View>
+        </SpotlightTourProvider>
     )
 }
- 
+
 export default ClockScreen;

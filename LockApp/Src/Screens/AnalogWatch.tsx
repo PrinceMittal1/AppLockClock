@@ -16,7 +16,7 @@ const AnalogWatch = () => {
     <View style={styles.container}>
       <View style={{
         borderColor:'red',
-        alignItems:"center",
+        alignItems:"center" ,
         position : 'relative'
       }}>
          <Image 

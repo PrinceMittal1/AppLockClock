@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
-import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, Pressable, Modal } from "react-native"
+import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, Pressable, Modal , AppState} from "react-native"
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import Video from "react-native-video";
 import { IMAGE } from "../assets/images";
@@ -127,6 +127,8 @@ const Singlescreen = ({ route, navigation }) => {
 
             const result = await CameraRoll.save(`file://${destinationPath}`);
 
+            console.log("reponse checking photo saved", result)
+
             if (result) {
                 Toast.showWithGravity(`Your file is restored to original path`,
                     Toast.SHORT,
@@ -208,6 +210,16 @@ const Singlescreen = ({ route, navigation }) => {
         deletingFile();
     }
 
+    useEffect(() => {
+        const handleAppStateChange = (nextAppState) => {
+          if(nextAppState == "background") navigation.navigate('clockScreen')
+        };
+        AppState.addEventListener('change', handleAppStateChange);
+        // return () => {
+        //   AppState.removeEventListener('change', handleAppStateChange);
+        // };
+      }, []);
+
     useEffect(() => { refreshing() }, [])
 
     const ref = useRef();
@@ -231,10 +243,10 @@ const Singlescreen = ({ route, navigation }) => {
                             source={{ uri: route?.params?.ele?.uri }}
                             paused={paused}
                             ref={ref}
-                            // onProgress={(x) => {
-                            //     // console.log("proprps in single screen", x)
-                            //     setProgress(x)
-                            // }}
+                            onProgress={(x) => {
+                                // console.log("proprps in single screen", x)
+                                setProgress(x)
+                            }}
                             style={{ width: widthVideo, height: heightVideo }}
                             resizeMode='contain'
                         />
